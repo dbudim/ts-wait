@@ -1,0 +1,30 @@
+{
+  "name": "ts-wait",
+  "version": "2.0.6",
+  "description": "A TypeScript library for implementing customizable polling mechanisms with adjustable timeouts and intervals.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbudim/ts-wait.git"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "wait",
+    "polling",
+    "timeout",
+    "promise",
+    "async",
+    "typescript",
+    "library",
+    "npm",
+    "utility",
+    "concurrency",
+    "synchronization",
+    "async-await"
+  ],
+  "author": "Dmytro Budym",
+  "license": "MIT"
+}

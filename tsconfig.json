@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es2020",
+        "strict": true,
+        "verbatimModuleSyntax": false,
+        "declaration": true,
+        "sourceMap": true,
+        "declarationMap": true,
+        "esModuleInterop": true,
+        "outDir": "dist"
+    },
+
+    "include": [
+        "src/*"
+    ]
+}
