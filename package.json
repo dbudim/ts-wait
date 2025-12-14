@@ -1,6 +1,6 @@
 {
   "name": "ts-wait",
-  "version": "2.0.6",
+  "version": "2.1.0",
   "description": "A TypeScript library for implementing customizable polling mechanisms with adjustable timeouts and intervals.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,10 @@
     "url": "https://github.com/dbudim/ts-wait.git"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "wait",
@@ -26,5 +29,10 @@
     "async-await"
   ],
   "author": "Dmytro Budym",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6"
+  }
 }
