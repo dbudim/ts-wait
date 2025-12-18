@@ -1,6 +1,6 @@
 {
   "name": "ts-wait",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A TypeScript library for implementing customizable polling mechanisms with adjustable timeouts and intervals.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
