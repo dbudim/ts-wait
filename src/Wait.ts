@@ -47,31 +47,35 @@ export class Wait<T> {
         let lastError: Error | undefined;
 
         let result: T = undefined as T;
+        let hasValidResult = false;
 
         try {
             result = (await this.call()) as T;
+            hasValidResult = true;
         } catch (error) {
             lastError = error as Error;
         }
         attemptCount++;
 
-        while (!condition(result) && this.shouldContinuePolling(startTime, attemptCount)) {
+        while ((!hasValidResult || !condition(result)) && this.shouldContinuePolling(startTime, attemptCount)) {
             await new Promise(resolve => setTimeout(resolve, currentInterval));
-            
+
             try {
                 result = (await this.call()) as T;
+                hasValidResult = true;
+                lastError = undefined;
             } catch (error) {
                 lastError = error as Error;
+                hasValidResult = false;
             }
             attemptCount++;
 
-            // Apply exponential backoff if enabled
             if (this.EXPONENTIAL_BACKOFF) {
                 currentInterval = this.calculateNextInterval(currentInterval);
             }
         }
 
-        if (!condition(result)) {
+        if (!hasValidResult || !condition(result)) {
             const errorMessage = this.message || this.buildErrorMessage(condition, attemptCount, lastError);
             throw new Error(errorMessage);
         }
@@ -86,19 +90,19 @@ export class Wait<T> {
 
     private calculateNextInterval(currentInterval: number): number {
         const nextInterval = currentInterval * this.BACKOFF_MULTIPLIER;
-        return this.MAX_INTERVAL !== undefined 
-            ? Math.min(nextInterval, this.MAX_INTERVAL) 
+        return this.MAX_INTERVAL !== undefined
+            ? Math.min(nextInterval, this.MAX_INTERVAL)
             : nextInterval;
     }
 
     private buildErrorMessage(condition: (it: T) => boolean, attemptCount: number, lastError?: Error): string {
         const timeInfo = `timeout: ${this.TIMEOUT} ms`;
-        const attemptInfo = this.MAX_ATTEMPTS !== undefined 
-            ? `, max attempts: ${this.MAX_ATTEMPTS}` 
+        const attemptInfo = this.MAX_ATTEMPTS !== undefined
+            ? `, max attempts: ${this.MAX_ATTEMPTS}`
             : '';
         const actualAttempts = `, actual attempts: ${attemptCount}`;
-        const errorInfo = lastError 
-            ? `. Last error: ${lastError.message}` 
+        const errorInfo = lastError
+            ? `. Last error: ${lastError.message}`
             : '';
         return `Condition not met: [${condition.toString()}] (${timeInfo}${attemptInfo}${actualAttempts})${errorInfo}`;
     }

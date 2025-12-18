@@ -438,4 +438,63 @@ describe('Wait', () => {
             expect(result).toBe(3);
         });
     });
+
+    describe('Skip condition evaluation on undefined', () => {
+        it('should not evaluate condition on undefined when all calls fail', async () => {
+            const mockCall = jest.fn().mockRejectedValue(new Error('API Error'));
+            const mockCondition = jest.fn().mockReturnValue(false);
+            
+            await expect(
+                new Wait(mockCall)
+                    .pollingEvery(50)
+                    .withMaxAttempts(3)
+                    .until(mockCondition)
+            ).rejects.toThrow('Condition not met');
+            
+            // The condition should never be called since we never got a valid result
+            expect(mockCondition).not.toHaveBeenCalled();
+        });
+
+        it('should handle condition that would throw on undefined', async () => {
+            interface ApiResponse {
+                status: string;
+                data: number;
+            }
+            
+            let callCount = 0;
+            const mockCall = jest.fn().mockImplementation(() => {
+                callCount++;
+                if (callCount < 3) {
+                    return Promise.reject(new Error('Connection failed'));
+                }
+                return Promise.resolve({ status: 'ready', data: 42 });
+            });
+            
+            // This condition would throw TypeError if called with undefined
+            const result = await new Wait<ApiResponse>(mockCall)
+                .pollingEvery(50)
+                .withTimeout(1000)
+                .until(response => response.status === 'ready');
+            
+            expect(result).toEqual({ status: 'ready', data: 42 });
+            expect(mockCall).toHaveBeenCalledTimes(3);
+        });
+
+        it('should clear last error when a subsequent call succeeds', async () => {
+            let callCount = 0;
+            const mockCall = jest.fn().mockImplementation(() => {
+                callCount++;
+                if (callCount === 1) {
+                    return Promise.reject(new Error('Temporary error'));
+                }
+                return Promise.resolve(5);
+            });
+            
+            const result = await new Wait(mockCall)
+                .pollingEvery(50)
+                .until(value => value === 5);
+            
+            expect(result).toBe(5);
+        });
+    });
 });
